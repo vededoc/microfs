@@ -1,0 +1,21 @@
+dbHost: 'localhost'
+dbUser: 'microfs'
+dbPassword: 'microfs'
+dbPort: 5432
+storagePath: '/tmp'
+servicePort: 9002
+
+#optional
+#basePath: '/microfs/v1'
+
+# optional
+externalAddr: 'http://localhost:9002'
+
+# optional
+#workerCount: 2
+
+# optional
+# format: nM | nd | nh | nm | ns
+# In here, n is number
+# For example, 1d is one day
+expireApiLog: '3M'

@@ -1,0 +1,13 @@
+### Send POST request with json body
+POST http://localhost:9002/microfs/v1/createUrl
+Content-Type: application/json
+
+{
+  "serviceId" : "test",
+  "fileName": "a.pptx",
+  "validDays": 30
+}
+
+###
+GET http://localhost:9002/microfs/v1/file/asdfasdfasdf
+
