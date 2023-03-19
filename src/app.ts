@@ -92,10 +92,44 @@ function WriteTest() {
     process.exit(0)
 }
 
+function CheckBaseFolders() {
+    //const dirPath = `${Cfg.storagePath}/${first}/b/c`
+    let dirPath
+    try {
+        for(let d='a'.charCodeAt(0); d<= 'z'.charCodeAt(0); d++) {
+            dirPath = `${Cfg.storagePath}/${String.fromCharCode(d)}`
+            // fs.mkdirSync(dirPath, {recursive: true})
+            const st = fs.statSync(dirPath)
+            if(!st) {
+                console.error('### not found:', dirPath)
+                process.exit(1)
+            }
+        }
+        let i=0;
+        for(let d=0+'0'.charCodeAt(0); i<10; d++, i++) {
+            dirPath = `${Cfg.storagePath}/${String.fromCharCode(d)}`
+            // console.info('dirPath:', dirPath)
+            // fs.mkdirSync(dirPath, {recursive: true})
+            const st = fs.statSync(dirPath)
+            if(!st) {
+                console.error('### not found:', dirPath)
+                process.exit(1)
+            }
+        }
+
+    } catch (err) {
+        console.error(err.message)
+        process.exit(1)
+    }
+
+    console.info('base folders ok')
+    process.exit(0)
+}
 export function ProcessCommandArgs() {
     program
         .option('-w, --work-dir <string>', 'working dir')
         .option('--check-write', 'check write permission')
+        .option('--check-base-folders', 'check if base folders exist')
 
     program.parse(process.argv);
     const opts = program.opts()
@@ -106,6 +140,10 @@ export function ProcessCommandArgs() {
 
     if(opts.checkWrite) {
         WriteTest()
+    }
+
+    if(opts.checkBaseFolders) {
+        CheckBaseFolders()
     }
 
 }

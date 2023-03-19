@@ -35,6 +35,7 @@ async function Test() {
 
     const fn = path.resolve(__dirname+"/..", 'config_template.yaml')
     // const url = `http://localhost:9002${rpm.url}`
+    console.info('file path:', fn)
     const fileinfo = path.parse(fn)
 
     const rqm: CreateUrlReq = {

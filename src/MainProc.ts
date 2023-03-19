@@ -44,7 +44,7 @@ class MainProc {
                 await Db.createFileRecord({
                     registerDate: ct.toJSDate(),
                     status: 0,
-                    expireDate, fileId, originalName:rqm.fileName, filePath, serviceId: rqm.serviceId
+                    expireDate, fileId, originalName:rqm.fileName, serviceId: rqm.serviceId
                 })
                 SendJsResp(resp, SCode.ok, rpm)
             } catch (err) {
@@ -69,7 +69,7 @@ class MainProc {
                     resp.status(409).send({code: SCode.conflict}).end()
                     return;
                 }
-                const filePath = this.makeFilePath(fileId)
+                const filePath = `${Cfg.storagePath}${this.makeFilePath(fileId)}`
                 await this.checkDir(filePath)
                 logger.info('move file to:', filePath)
                 await fsPromises.rename(req.file.path, filePath)
@@ -102,8 +102,8 @@ class MainProc {
                     resp.status(423).send(rpm).end()
                     return
                 }
-
-                resp.download(frec.filePath, frec.originalName)
+                const realPath = `${Cfg.storagePath}${this.makeFilePath(frec.fileId)}`
+                resp.download(realPath, frec.originalName)
 
             } catch (err) {
                 console.trace(err)
@@ -120,10 +120,9 @@ class MainProc {
     }
 
     private makeFilePath(fileId: string) {
-        const tn = fileId.slice(0, 3).split('').join('/')
-        const fdir = `${Cfg.storagePath}/${tn}`
+        const tn = fileId.slice(0, 2).split('').join('/')
         // await fsPromises.mkdir(fdir, {recursive: true})
-        return fdir+'/'+fileId;
+        return '/'+tn+'/'+fileId;
     }
 
     private checkDir(filePath: string) {

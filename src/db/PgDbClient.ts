@@ -23,8 +23,8 @@ class PgDbClient {
     }
     async createFileRecord(rec: dbtab.FileRecord): Promise<any> {
         return this.pool.query(
-            'insert into file_record ("fileId", "filePath", "serviceId", "expireDate", status, "originalName", "registerDate")' +
-            ' values ($1, $2, $3, $4, $5, $6, $7)', [rec.fileId, rec.filePath, rec.serviceId, rec.expireDate, rec.status, rec.originalName, rec.registerDate])
+            `insert into file_record ("fileId", "serviceId", "expireDate", status, "originalName", "registerDate") 
+                values ($1, $2, $3, $4, $5, $6)`, [rec.fileId, rec.serviceId, rec.expireDate, rec.status, rec.originalName, rec.registerDate])
     }
 
     async getFileRecord(fileId: string): Promise<FileRecord> {
