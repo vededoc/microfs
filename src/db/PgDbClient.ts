@@ -27,6 +27,11 @@ class PgDbClient {
                 values ($1, $2, $3, $4, $5, $6)`, [rec.fileId, rec.serviceId, rec.expireDate, rec.status, rec.originalName, rec.registerDate])
     }
 
+    async deleteFileRecord(fileId: string): Promise<number> {
+        const res = await this.pool.query(`delete from file_record where "fileId"=$1`, [fileId])
+        return res.rowCount
+    }
+
     async getFileRecord(fileId: string): Promise<FileRecord> {
         const res = await this.pool.query('select * from file_record where "fileId"=($1)', [fileId])
         return res.rows[0] as FileRecord
@@ -41,13 +46,19 @@ class PgDbClient {
 
     async deleteOld(ct: Date, maxRows: number): Promise<number> {
         const res = await this.pool.query(
-            'delete from file_record where "registerDate" < $1 and "registerDate" in (select "registerDate" from file_record where "registerDate" < $1 limit $2)'
+            'delete from file_record where "expireDate" in (select "expireDate" from file_record where "expireDate" < $1 and status=3 limit $2)'
             , [ct, maxRows])
         return res.rowCount
     }
 
-    async deleteApiLog(expire: Date): Promise<any> {
-        return this.pool.query('delete from api_log where "calledTime" < $1', [expire])
+    async changeOldFileStatus(ct: Date): Promise<number> {
+        const res = await this.pool.query(`update file_record set status=3 where "expireDate" < $1 and status != 3`, [ct])
+        return res.rowCount
+    }
+
+    async deleteApiLog(expire: Date, maxRows: number): Promise<number> {
+        const res = await this.pool.query('delete from api_log where "calledTime" in (select "calledTime" from api_log  where "calledTime" < $1 limit $2)', [expire, maxRows])
+        return res.rowCount
     }
 
 }

@@ -7,6 +7,7 @@ create table api_log (
     "data" varchar,
     constraint api_log_pk primary key ("calledTime")
 );
+create index api_log_idx on api_log("serviceId");
 
 drop table if exists file_record;
 create table file_record (

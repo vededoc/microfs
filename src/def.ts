@@ -21,6 +21,7 @@ export interface AppCfg {
     workDir: string
 
     expireApiLog: string
+    identify: boolean
 }
 
 

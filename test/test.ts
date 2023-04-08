@@ -52,4 +52,44 @@ async function Test() {
     console.info('upload ok')
 }
 
+async function Test0() {
+    ProcessCommandArgs()
+
+    const cl = axios.create({
+        baseURL: 'http://localhost:9002/microfs/v1',
+    })
+
+    const fn = path.resolve(__dirname+"/..", 'config_template.yaml')
+    // const url = `http://localhost:9002${rpm.url}`
+    console.info('file path:', fn)
+    const fileinfo = path.parse(fn)
+    const pms = []
+    if(false) {
+        const t1 = performance.now()
+        for (let i = 0; i < 1000; i++) {
+            const rqm: CreateUrlReq = {
+                serviceId: "test", validDays: 10,
+                fileName: fileinfo.base
+            }
+            const res = await cl.post('/createUrl', rqm)
+            // console.info('upload url:', res.data.data.url)
+            const rpm = res.data.data as CreateUrlResp
+            // logger.info('url:', rpm.url)
+        }
+        logger.info('durMs:', performance.now()-t1)
+    } else {
+        const t1 = performance.now()
+        for (let i = 0; i < 1000; i++) {
+            const rqm: CreateUrlReq = {
+                serviceId: "test", validDays: 10,
+                fileName: fileinfo.base
+            }
+            pms.push( cl.post('/createUrl', rqm) )
+        }
+        const res = await Promise.all(pms)
+        logger.info('durMs:', performance.now()-t1)
+    }
+
+}
+
 Test()

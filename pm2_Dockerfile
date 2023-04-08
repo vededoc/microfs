@@ -1,0 +1,27 @@
+FROM node:16-alpine
+WORKDIR /app
+RUN npm i -g pm2
+RUN pm2 install pm2-logrotate
+RUN pm2 set pm2-logrotate:retain 30
+RUN pm2 set pm2-logrotate:dateFormat YYYY-MM-DD_HH-mm-ss
+RUN pm2 set pm2-logrotate:max_size 10M
+RUN pm2 set pm2-logrotate:rotateInterval 0 0 * * *
+RUN pm2 set pm2-logrotate:rotateModule true
+RUN pm2 set pm2-logrotate:workerInterval 10
+
+COPY ecosystem.config.js ./
+ADD dist /app
+RUN mkdir /data
+RUN mkdir /data/files
+COPY package.json ./
+COPY config.yaml ./
+RUN yarn --production
+
+#ENV NODE_ENV=$buildenv
+ENV NODE_ENV production
+ENV NPM_CONFIG_LOGLEVEL warn
+
+#CMD ["sh", "-c", "pm2-runtime start pm2.${NODE_ENV}.config.js"]
+#CMD ["sh", "-c", "pm2-runtime", "start", "ecosystem.config.json"]
+CMD ["pm2-runtime", "start", "ecosystem.config.js"]
+

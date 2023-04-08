@@ -11,14 +11,14 @@ import {SendJsResp} from "./app";
 import {DateTime} from 'luxon'
 import * as path from "path";
 import {spawn} from "child_process";
-import {jsu} from "./jsu/util";
+import {waitSec} from '@vededoc/sjsutils'
 class MainProc {
 
     init() {
-        Db.init(Cfg.dbHost, Cfg.database, Cfg.dbUser, Cfg.dbPassword)
         const app = express()
         app.use(express.json())
         app.disable('x-powered-by')
+        // app.disable('etag')
         const multerInst = multer({dest:Cfg.storagePath})
         const router = express.Router()
         app.use(Cfg.basePath, router)
@@ -53,6 +53,24 @@ class MainProc {
             }
 
         })
+        router.post('/deleteUrl/:fileId', async (req: express.Request, resp: express.Response) => {
+            const {fileId} = req.params
+            const filePath = this.makeFilePath(fileId)
+            try {
+                const rc = await Db.deleteFileRecord(fileId)
+                if(rc===0) {
+                    SendJsResp(resp, SCode.ok)
+                    return;
+                }
+
+                await fsPromises.rm(filePath)
+                SendJsResp(resp, SCode.ok)
+            } catch (err) {
+                SendJsResp(resp, SCode.fileError)
+            }
+
+        })
+
         router.post('/file/:fileId', multerInst.single('file'), async (req: express.Request, resp: express.Response) => {
             const fileId = req.params.fileId
             logger.info('file upload ok, fileId', req.params.fileId)
@@ -60,7 +78,7 @@ class MainProc {
                 const frec = await Db.getFileRecord(fileId)
                 if(frec?.fileId !== fileId) {
                     logger.info('### fileId not found:', fileId)
-                    await jsu.WaitSec(3) // 무작위 공격 대응
+                    await waitSec(3) // 무작위 공격 대응
                     resp.status(404).send({code: SCode.fileError}).end()
                     return;
                 }
@@ -87,7 +105,7 @@ class MainProc {
             try {
                 const frec = await Db.getFileRecord(fileId)
                 if(!frec) {
-                    await jsu.WaitSec(3) // 무작위 공격 대응
+                    await waitSec(3) // 무작위 공격 대응
                     resp.status(404).end()
                     return;
                 }

@@ -1,13 +1,15 @@
 import * as express from 'express'
 import logger from "./jsu/logger";
 import Db from "./db/PgDbClient";
-import {jsu} from "./jsu/util";
 import {program} from "commander";
 import Cfg from "./def";
 import * as YAML from "yaml";
 import * as path from "path";
 import * as fs from "fs";
 import * as os from "os";
+import * as jsu from '@vededoc/sjsutils'
+const packageJson = require('../package.json')
+
 export function SendJsResp(resp: express.Response, code: string, data?: any, msg?: string) {
     resp.json({code, msg, data})
 }
@@ -15,14 +17,24 @@ export function SendJsResp(resp: express.Response, code: string, data?: any, msg
 export async function StartOldClean() {
     let cleaned = false
     setInterval( async ()=> {
+        logger.info('on timer for clean ...')
         const ct = new Date()
         if(ct.getHours() == 3) {
             if(!cleaned) {
                 try {
                     let cleanedRows = 0
-                    for (;;) {
-                        logger.info('clean old data')
-                        const rc = await Db.deleteOld(ct, 100)
+
+                    // 만기일이 지난 파일의 status 를 3 으로 변경한다
+                    const chgRows = await Db.changeOldFileStatus(ct)
+                    logger.info('update status of old data, cnt:', chgRows)
+
+                    // status 가 3이며 만기일+30 일 이후 데이타 삭제한다
+                    //const deldt = DateTime.fromJSDate(ct).minus({days: 30}).toJSDate()
+                    const deldt = new Date(ct)
+                    deldt.setDate( deldt.getDate() - 30)
+                    for (let i=0;i<10000;i++) {
+                        logger.info('delete old data')
+                        const rc = await Db.deleteOld(deldt, 1000)
                         if (rc == 0) {
                             break
                         } else {
@@ -30,6 +42,17 @@ export async function StartOldClean() {
                         }
                     }
                     logger.info('all deleted rows:', cleanedRows)
+
+                    cleanedRows = 0
+                    for(let i=0;i<10000;i++) {
+                        const rc = await Db.deleteApiLog(ct, 1000)
+                        if(rc == 0) {
+                            break;
+                        } else {
+                            cleanedRows += rc
+                        }
+                    }
+                    logger.info('api_log: all deleted rows:', cleanedRows)
                 } catch (err) {
 
                 }
@@ -40,11 +63,14 @@ export async function StartOldClean() {
 
                 }
                 cleaned = true
+            } else {
+                logger.info('skip...........')
             }
+
         } else {
             cleaned = false;
         }
-    }, jsu.MIN_MS )
+    }, jsu.MIN_MS)
 }
 
 function LoadCfg() {
@@ -55,7 +81,15 @@ function LoadCfg() {
     Cfg.dbPort = Cfg.dbPort ?? 5432
     Cfg.servicePort = Cfg.servicePort ?? 9002
     Cfg.basePath = Cfg.basePath ?? '/microfs/v1'
-    Cfg.workerCount = Cfg.workerCount ?? os.cpus().length
+    if(Cfg.workerCount === undefined || Cfg.workerCount as any === 'auto') {
+        Cfg.workerCount = os.cpus().length
+    } else {
+        if(Number.isInteger(Cfg.workerCount as any) == false) {
+            console.error('### worker count invalid')
+            process.exit(1)
+        }
+    }
+
     if(!Cfg.storagePath) {
         throw Error('INVALID_STORAGE_PATH')
         process.exit(1)
@@ -127,9 +161,10 @@ function CheckBaseFolders() {
 }
 export function ProcessCommandArgs() {
     program
-        .option('-w, --work-dir <string>', 'working dir')
+        .option('-w, --work-dir <working-dir>', 'working dir')
         .option('--check-write', 'check write permission')
         .option('--check-base-folders', 'check if base folders exist')
+        .version(packageJson.version)
 
     program.parse(process.argv);
     const opts = program.opts()
