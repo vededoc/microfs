@@ -3,7 +3,6 @@ import logger from "./jsu/logger";
 import Db from "./db/PgDbClient";
 import {program} from "commander";
 import Cfg from "./def";
-import * as YAML from "yaml";
 import * as path from "path";
 import * as fs from "fs";
 import * as os from "os";

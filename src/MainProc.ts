@@ -8,10 +8,8 @@ import Cfg, {SCode} from "./def";
 import {BaseResp, CreateUrlReq, CreateUrlResp, FileReq} from "./amsg";
 import logger from "./jsu/logger";
 import {SendJsResp} from "./app";
-import {DateTime} from 'luxon'
 import * as path from "path";
-import {spawn} from "child_process";
-import {waitSec} from '@vededoc/sjsutils'
+import {DAY_MS, waitSec} from '@vededoc/sjsutils'
 class MainProc {
 
     init() {
@@ -31,8 +29,8 @@ class MainProc {
 
         router.post('/createUrl', async (req: express.Request, resp: express.Response) => {
             const rqm = req.body as CreateUrlReq
-            const ct = DateTime.now()
-            const expireDate = ct.plus({day: rqm.validDays ?? 30}).toJSDate()
+            const ct = new Date()
+            const expireDate = new Date(ct.getTime() + (rqm.validDays??30) * DAY_MS )
             try {
                 const fileId = this.makeFileId()
                 logger.info('fileId:', fileId)
@@ -42,7 +40,7 @@ class MainProc {
                     url
                 }
                 await Db.createFileRecord({
-                    registerDate: ct.toJSDate(),
+                    registerDate: ct,
                     status: 0,
                     expireDate, fileId, originalName:rqm.fileName, serviceId: rqm.serviceId
                 })
