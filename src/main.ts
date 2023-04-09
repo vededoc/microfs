@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 import gMainProc from "./MainProc";
 import Cfg from "./def";
 import * as fs from "fs";

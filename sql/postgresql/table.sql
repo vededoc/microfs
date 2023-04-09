@@ -1,5 +1,3 @@
-
-drop table if exists api_log;
 create table api_log (
     "calledTime" timestamptz,
     "serviceId" varchar,
@@ -9,9 +7,8 @@ create table api_log (
 );
 create index api_log_idx on api_log("serviceId");
 
-drop table if exists file_record;
 create table file_record (
-    "nid" bigserial,
+    rid bigserial,
     "serviceId" varchar not null,
     "fileId" varchar not null ,
     "originalName" varchar,
@@ -20,4 +17,4 @@ create table file_record (
     "expireDate" timestamptz,
     constraint file_record_pk primary key ("fileId", "serviceId")
 );
-create unique index file_record_idx on file_record("nid");
+create unique index file_record_idx on file_record("rid");

@@ -8,7 +8,6 @@ import * as path from "path";
 import * as fs from "fs";
 import * as os from "os";
 import * as jsu from '@vededoc/sjsutils'
-const packageJson = require('../package.json')
 
 export function SendJsResp(resp: express.Response, code: string, data?: any, msg?: string) {
     resp.json({code, msg, data})
@@ -74,19 +73,24 @@ export async function StartOldClean() {
 }
 
 function LoadCfg() {
-    const cfgFile = path.resolve(Cfg.workDir, 'config.yaml')
-    const cfgs = fs.readFileSync(cfgFile, 'utf-8')
-    Object.assign(Cfg, YAML.parse(cfgs))
-    Cfg.dbHost = Cfg.dbHost ?? 'localhost'
-    Cfg.dbPort = Cfg.dbPort ?? 5432
-    Cfg.servicePort = Cfg.servicePort ?? 9002
-    Cfg.basePath = Cfg.basePath ?? '/microfs/v1'
-    if(Cfg.workerCount === undefined || Cfg.workerCount as any === 'auto') {
+    // const st = fs.statSync('../package.json')
+    // const pkg = require('package.json')
+
+    Cfg.dbHost = process.env.DB_HOST ?? 'localhost'
+    Cfg.database = process.env.DB_NAME ?? 'microfs'
+    Cfg.dbPort = Number.parseInt( process.env.DB_PORT ?? '5432' )
+    Cfg.dbUser = process.env.DB_USER ?? 'microfs'
+    Cfg.dbPassword = process.env.DB_PASSWORD
+    Cfg.servicePort = Number.parseInt( process.env.SERVICE_PORT ?? '9002' )
+    Cfg.basePath = process.env.BASE_PATH ?? '/microfs/v1'
+    Cfg.storagePath = process.env.STORAGE_PATH ?? '/data/microfs/files'
+    Cfg.externalAddr = process.env.EXTERNAL_ADDR
+    if(process.env.WORKER_COUNT === undefined) {
         Cfg.workerCount = os.cpus().length
     } else {
-        if(Number.isInteger(Cfg.workerCount as any) == false) {
-            console.error('### worker count invalid')
-            process.exit(1)
+        Cfg.workerCount = Number.parseInt(process.env.WORKER_COUNT)
+        if(Cfg.workerCount > 100 || Cfg.workerCount < 0) {
+            throw Error("### invalid worker count")
         }
     }
 
@@ -160,6 +164,9 @@ function CheckBaseFolders() {
     process.exit(0)
 }
 export function ProcessCommandArgs() {
+    const pkgfile = fs.readFileSync('package.json', 'utf8')
+    const packageJson = JSON.parse(pkgfile)
+
     program
         .option('-w, --work-dir <working-dir>', 'working dir')
         .option('--check-write', 'check write permission')

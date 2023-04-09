@@ -1,5 +1,5 @@
 ### Send POST request with json body
-POST http://localhost:9002/microfs/v1/createUrl
+POST http://172.17.0.2:9002/microfs/v1/createUrl
 Content-Type: application/json
 
 {

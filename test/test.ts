@@ -1,3 +1,4 @@
+require('dotenv').config()
 import logger from "../src/jsu/logger";
 
 const fs = require('fs')
@@ -6,6 +7,7 @@ const FormData = require('form-data')
 import {CreateUrlReq, CreateUrlResp} from "../src/amsg";
 import * as path from "path";
 import {ProcessCommandArgs} from "../src/app";
+import Cfg from "../src/def";
 
 async function uploadFile(url: string, upFile: string) {
     let formData = new FormData(); // formData 객체를 생성한다.
@@ -30,7 +32,7 @@ async function Test() {
     ProcessCommandArgs()
 
     const cl = axios.create({
-        baseURL: 'http://localhost:9002/microfs/v1',
+        baseURL: 'http://172.17.0.2:9002/microfs/v1',
     })
 
     const fn = path.resolve(__dirname+"/..", 'config_template.yaml')
@@ -46,8 +48,8 @@ async function Test() {
     console.info('upload url:', res.data.data.url)
     const rpm = res.data.data as CreateUrlResp
 
-    logger.info('upload file path:', fn)
-    const url = `${rpm.url}`
+    logger.info('upload file path: %s, url=%s', fn, rpm.url)
+    const url = `${Cfg.externalAddr}${rpm.url}`
     const r1 = await uploadFile(url, fn)
     console.info('upload ok')
 }
@@ -56,7 +58,7 @@ async function Test0() {
     ProcessCommandArgs()
 
     const cl = axios.create({
-        baseURL: 'http://localhost:9002/microfs/v1',
+        baseURL: 'http://172.17.0.2:9002/microfs/v1',
     })
 
     const fn = path.resolve(__dirname+"/..", 'config_template.yaml')

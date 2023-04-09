@@ -1,0 +1,16 @@
+# database settings
+DB_HOST=localhost
+DB_NAME=microfs
+DB_USER=microfs
+DB_PASSWORD=db_password
+
+# listening port
+SERVICE_PORT=9002
+
+BASE_PATH=/microfs/v1
+STORAGE_PATH=/data/microfs/files
+#WORKER_COUNT=1
+
+# external address for proxy
+# if set, it is inserted before BASE_PATH
+#EXTERNAL_ADDR=http://172.17.0.2:9002
