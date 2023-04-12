@@ -32,7 +32,7 @@ async function Test() {
     ProcessCommandArgs()
 
     const cl = axios.create({
-        baseURL: 'http://172.17.0.2:9002/microfs/v1',
+        baseURL: 'http://localhost:9002/microfs/v1',
     })
 
     const fn = path.resolve(__dirname+"/..", 'config_template.yaml')
@@ -49,7 +49,7 @@ async function Test() {
     const rpm = res.data.data as CreateUrlResp
 
     logger.info('upload file path: %s, url=%s', fn, rpm.url)
-    const url = `${Cfg.externalAddr}${rpm.url}`
+    const url = `${rpm.url}`
     const r1 = await uploadFile(url, fn)
     console.info('upload ok')
 }
@@ -58,7 +58,7 @@ async function Test0() {
     ProcessCommandArgs()
 
     const cl = axios.create({
-        baseURL: 'http://172.17.0.2:9002/microfs/v1',
+        baseURL: 'http://localhost:9002/microfs/v1',
     })
 
     const fn = path.resolve(__dirname+"/..", 'config_template.yaml')

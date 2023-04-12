@@ -47,9 +47,6 @@ if(Cfg.workerCount > 0 && cluster.isPrimary) {
         console.info('on SIGINT')
         process.exit(0)
     })
-
-
-
 } else {
     logger.info('worker:', cluster.worker?.id)
     gMainProc.init()

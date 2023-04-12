@@ -14,7 +14,6 @@ RUN mkdir -p /data/microfs/logs
 COPY package.json ./
 RUN yarn --production
 
-ENV ENV="/root/.ashrc"
 ENV NODE_ENV production
 ENV DB_HOST $DB_HOST
 ENV DB_NAME $DB_NAME
