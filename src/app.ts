@@ -7,6 +7,7 @@ import * as path from "path";
 import * as fs from "fs";
 import * as os from "os";
 import * as jsu from '@vededoc/sjsutils'
+const pkgjs = require('../package.json')
 
 export function SendJsResp(resp: express.Response, code: string, data?: any, msg?: string) {
     resp.json({code, msg, data})
@@ -170,7 +171,7 @@ export function ProcessCommandArgs() {
         .option('-w, --work-dir <working-dir>', 'working dir')
         .option('--check-write', 'check write permission')
         .option('--check-base-folders', 'check if base folders exist')
-        .version('0.0.1')
+        .version(pkgjs.version)
 
     program.parse(process.argv);
     const opts = program.opts()
