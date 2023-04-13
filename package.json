@@ -1,5 +1,5 @@
 {
-  "name": "microfs",
+  "name": "@vededoc/microfs",
   "version": "0.0.2",
   "description": "simple, lightweight file server",
   "main": "dist/main.js",
@@ -14,7 +14,9 @@
     "url": "git+https://github.com/vededoc/microfs.git"
   },
   "keywords": [
-    "file server"
+    "file server",
+    "downloading",
+    "uploading"
   ],
   "homepage": "https://github.com/vededoc/microfs#readme",
   "author": "vededoc",
