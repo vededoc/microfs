@@ -163,14 +163,14 @@ function CheckBaseFolders() {
     process.exit(0)
 }
 export function ProcessCommandArgs() {
-    const pkgfile = fs.readFileSync('package.json', 'utf8')
-    const packageJson = JSON.parse(pkgfile)
+    // const pkgfile = fs.readFileSync('package.json', 'utf8')
+    // const packageJson = JSON.parse(pkgfile)
 
     program
         .option('-w, --work-dir <working-dir>', 'working dir')
         .option('--check-write', 'check write permission')
         .option('--check-base-folders', 'check if base folders exist')
-        .version(packageJson.version)
+        .version('0.0.1')
 
     program.parse(process.argv);
     const opts = program.opts()

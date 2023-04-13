@@ -13,6 +13,15 @@ process.title = 'microfs'
 
 ProcessCommandArgs()
 
+if(cluster.isPrimary) {
+    console.info('DB_HOST=%s', Cfg.dbHost)
+    console.info('DB_NAME=%s', Cfg.database)
+    console.info('DB_USER=%s', Cfg.dbUser)
+    console.info('STORAGE_PATH=%s', Cfg.storagePath)
+    console.info('EXTERNAL_ADDR=%s', Cfg.externalAddr)
+    console.info()
+}
+
 Db.init(Cfg.dbHost, Cfg.database, Cfg.dbUser, Cfg.dbPassword)
 
 if(Cfg.workerCount > 0 && cluster.isPrimary) {

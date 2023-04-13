@@ -31,12 +31,31 @@ $ sudo npm i -g @vededoc/microfs
 
 ### run
 ```shell
-$ DB_USER=microfs  DB_PASSWORD='your_password' DB_NAME=microfs 
+# for default setting, just run microfs
+$ microfs
+
+# user specific setting
+$ DB_USER=microfs DB_PASSWORD='your_password' DB_NAME=microfs STORAGE_PATH=/data/microfs/files microfs  
 ```
 ## HowTo
-- POST /createUrl
-- Get uploading/downloading url from response
+```shell
+# first, request url for file loading
+$ curl -X POST -H "Content-Type: application/json" -d '{"serviceId" : "test",
+  "fileName": "file.txt",
+  "validDays": 30}'
+# response ==>
+{
+  "code": "OK",
+  "data": {
+    "url": "http://localhost:9002/microfs/v1/file/742a866bf32241efa6048c73e0827433"
+  }
+}
 
+# upload file
+$ curl -X POST -F 'file=@/path/to/file' http://localhost:9002/microfs/v1/file/742a866bf32241efa6048c73e0827433
 
+# download file
+$ wget http://localhost:9002/microfs/v1/file/742a866bf32241efa6048c73e0827433
+```
 
 
