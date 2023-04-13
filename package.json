@@ -1,6 +1,6 @@
 {
   "name": "@vededoc/microfs",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "simple, lightweight file server",
   "main": "dist/main.js",
   "bin": "dist/microfs",
