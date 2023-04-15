@@ -3,16 +3,17 @@ import * as http from "http";
 import * as multer from "multer";
 import * as fsPromises from 'fs/promises'
 import {randomUUID} from "crypto";
-import Db from "./db/PgDbClient";
 import Cfg, {SCode} from "./def";
 import {BaseResp, CreateUrlReq, CreateUrlResp, FileReq} from "./amsg";
 import logger from "./jsu/logger";
 import {SendJsResp} from "./app";
 import * as path from "path";
 import {DAY_MS, waitSec} from '@vededoc/sjsutils'
+import {getDb} from "./db/dbinst";
 class MainProc {
 
     init() {
+        const db = getDb()
         const app = express()
         app.use(express.json())
         app.disable('x-powered-by')
@@ -23,7 +24,7 @@ class MainProc {
 
         router.use((req: express.Request, resp: express.Response, next) => {
             logger.info('req path:%s, url:%s', req.path, req.url)
-            Db.apiLog(req.path, req.body['serviceId'], req.body).catch(err => console.trace(err))
+            db.apiLog(req.path, req.body['serviceId'], req.body).catch(err => console.trace(err))
             next()
         })
 
@@ -39,7 +40,7 @@ class MainProc {
                 const rpm: CreateUrlResp = {
                     url
                 }
-                await Db.createFileRecord({
+                await db.createFileRecord({
                     registerDate: ct,
                     status: 0,
                     expireDate, fileId, originalName:rqm.fileName, serviceId: rqm.serviceId
@@ -55,7 +56,7 @@ class MainProc {
             const {fileId} = req.params
             const filePath = this.makeFilePath(fileId)
             try {
-                const rc = await Db.deleteFileRecord(fileId)
+                const rc = await db.deleteFileRecord(fileId)
                 if(rc===0) {
                     SendJsResp(resp, SCode.ok)
                     return;
@@ -73,7 +74,7 @@ class MainProc {
             const fileId = req.params.fileId
             logger.info('file upload ok, fileId', req.params.fileId)
             try {
-                const frec = await Db.getFileRecord(fileId)
+                const frec = await db.getFileRecord(fileId)
                 if(frec?.fileId !== fileId) {
                     logger.info('### fileId not found:', fileId)
                     await waitSec(3) // 무작위 공격 대응
@@ -90,7 +91,7 @@ class MainProc {
                 logger.info('move file to:', filePath)
                 await fsPromises.rename(req.file.path, filePath)
 
-                await Db.updateUploadFileStatus(fileId, 1)
+                await db.updateUploadFileStatus(fileId, 1)
                 SendJsResp(resp, SCode.ok)
             } catch (err) {
                 console.trace(err)
@@ -101,7 +102,7 @@ class MainProc {
         router.get('/file/:fileId', async (req: express.Request, resp: express.Response) => {
             const {fileId} = req.params;
             try {
-                const frec = await Db.getFileRecord(fileId)
+                const frec = await db.getFileRecord(fileId)
                 if(!frec) {
                     await waitSec(3) // 무작위 공격 대응
                     resp.status(404).end()

@@ -1,3 +1,5 @@
+import {getDb} from "./db/dbinst";
+
 require('dotenv').config()
 
 import gMainProc from "./MainProc";
@@ -5,7 +7,6 @@ import Cfg from "./def";
 import * as fs from "fs";
 import logger from "./jsu/logger";
 import {ProcessCommandArgs, StartOldClean} from "./app";
-import Db from "./db/PgDbClient";
 const process = require('process')
 const cluster = require('node:cluster')
 
@@ -22,6 +23,7 @@ if(cluster.isPrimary) {
     console.info()
 }
 
+const Db = getDb()
 Db.init(Cfg.dbHost, Cfg.database, Cfg.dbUser, Cfg.dbPassword)
 
 if(Cfg.workerCount > 0 && cluster.isPrimary) {

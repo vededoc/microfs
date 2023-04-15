@@ -8,6 +8,7 @@ export const SCode = {
 }
 
 export interface AppCfg {
+    dbBrand: string //'pg' | 'mariadb'
     dbHost: string
     dbPort: number
     dbUser: string
@@ -19,6 +20,7 @@ export interface AppCfg {
     storagePath: string
     workerCount: number
     workDir: string
+
 
     expireApiLog: string
     identify: boolean

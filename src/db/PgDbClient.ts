@@ -3,8 +3,9 @@ import {dbtab} from "../table";
 import FileRecord = dbtab.FileRecord;
 import {AppError} from "../AppError";
 import {SCode} from "../def";
+import {DBClient} from "./DBClient";
 
-class PgDbClient {
+class PgDbClient extends DBClient {
     private pool: Pool
 
     init(host: string, database: string, user: string, password: string) {
@@ -63,6 +64,6 @@ class PgDbClient {
 
 }
 
-const Db = new PgDbClient()
+const gPgDb = new PgDbClient()
 
-export  default Db
+export  default gPgDb

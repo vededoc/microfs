@@ -1,6 +1,6 @@
 import * as express from 'express'
 import logger from "./jsu/logger";
-import Db from "./db/PgDbClient";
+import gPgDb from "./db/PgDbClient";
 import {program} from "commander";
 import Cfg from "./def";
 import * as path from "path";
@@ -24,7 +24,7 @@ export async function StartOldClean() {
                     let cleanedRows = 0
 
                     // 만기일이 지난 파일의 status 를 3 으로 변경한다
-                    const chgRows = await Db.changeOldFileStatus(ct)
+                    const chgRows = await gPgDb.changeOldFileStatus(ct)
                     logger.info('update status of old data, cnt:', chgRows)
 
                     // status 가 3이며 만기일+30 일 이후 데이타 삭제한다
@@ -33,7 +33,7 @@ export async function StartOldClean() {
                     deldt.setDate( deldt.getDate() - 30)
                     for (let i=0;i<10000;i++) {
                         logger.info('delete old data')
-                        const rc = await Db.deleteOld(deldt, 1000)
+                        const rc = await gPgDb.deleteOld(deldt, 1000)
                         if (rc == 0) {
                             break
                         } else {
@@ -44,7 +44,7 @@ export async function StartOldClean() {
 
                     cleanedRows = 0
                     for(let i=0;i<10000;i++) {
-                        const rc = await Db.deleteApiLog(ct, 1000)
+                        const rc = await gPgDb.deleteApiLog(ct, 1000)
                         if(rc == 0) {
                             break;
                         } else {
@@ -75,7 +75,7 @@ export async function StartOldClean() {
 function LoadCfg() {
     // const st = fs.statSync('../package.json')
     // const pkg = require('package.json')
-
+    Cfg.dbBrand = process.env.DB_BRAND ?? 'pg'
     Cfg.dbHost = process.env.DB_HOST ?? 'localhost'
     Cfg.database = process.env.DB_NAME ?? 'microfs'
     Cfg.dbPort = Number.parseInt( process.env.DB_PORT ?? '5432' )
